@@ -19,7 +19,7 @@ public class Customer {
 
     public boolean isHappy() {
         if (hasLiverProblem) {
-            return drinksConsumed == 1;
+            return drinksConsumed <= 1;
         }
         return true;
     }

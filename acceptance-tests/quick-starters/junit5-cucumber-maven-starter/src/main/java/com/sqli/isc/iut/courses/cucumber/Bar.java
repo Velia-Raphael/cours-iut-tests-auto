@@ -12,9 +12,9 @@ public class Bar {
 
     public Bar(String name, int capacity) {
         this.name = name;
-        this.capacity = capacity;
         this.customers = new ArrayList<>();
         this.isFull = false;
+        this.capacity = capacity;
     }
 
     public boolean canEnter(int numberOfPeople) {
@@ -40,5 +40,13 @@ public class Bar {
 
     public int getCurrentOccupancy() {
         return customers.size();
+    }
+
+    public void setCapacity(int capacity) {
+        this.capacity = capacity;
+    }
+
+    public void setIsFull() {
+        this.isFull = true;
     }
 }
