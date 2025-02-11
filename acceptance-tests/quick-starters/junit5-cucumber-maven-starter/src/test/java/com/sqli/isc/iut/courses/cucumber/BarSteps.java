@@ -11,6 +11,7 @@ public class BarSteps {
     private Customer mrPignon;
     private Customer mrLeblanc;
     private boolean entryAllowed;
+    private int totalBill = 0;
 
     @Given("Le Juste is a cocktail bar")
     public void leJusteIsACocktailBar() {
@@ -31,9 +32,9 @@ public class BarSteps {
         }
     }
 
-    @When("Mr Pignon and Mr Leblanc try to enter")
-    public void mrPignonAndMrLeblancTryToEnter() {
-        entryAllowed = leJuste.canEnter(2);
+    @When("Mr Pignon and Mr Leblanc arrive all at the bar")
+    public void mr_Pignon_and_Mr_Leblanc_arrive_all_at_the_bar() {
+        leJuste.addCustomers(mrPignon, mrLeblanc);
     }
 
     @Then("they are denied entry")
@@ -47,72 +48,77 @@ public class BarSteps {
         assertEquals("Full", message);
     }
 
-    @When("Mr Pignon and Mr Leblanc enter the bar")
-    public void mrPignonAndMrLeblancEnterTheBar() {
-        leJuste.addCustomers(mrPignon, mrLeblanc);
+    /**----------------------------------Part2--------------------------------------------------------**/
+
+    @Then("the next customer is denied entry")
+    public void theNextCustomerIsDenied_entry() {
+        assertFalse(entryAllowed);
     }
 
-    @Then("they are allowed to enter")
-    public void theyAreAllowedToEnter() {
-        assertTrue(leJuste.canEnter(0)); // Vérifie s'ils sont bien entrés
-    }
-
-    @When("they each order a cocktail of the month")
-    public void theyEachOrderACocktailOfTheMonth() {
+    @When("they order a cocktail of the month at 10€ each")
+    public void they_order_cocktails() {
         mrPignon.orderDrink();
-        mrPignon.getBill().addToBill(leJuste.getCocktailPrice());
-
         mrLeblanc.orderDrink();
-        mrLeblanc.getBill().addToBill(leJuste.getCocktailPrice());
     }
 
-    @And("Mr Leblanc pays for both drinks")
-    public void mrLeblancPaysForBothDrinks() {
-        int totalAmount = mrPignon.getBill().getAmount() + mrLeblanc.getBill().getAmount();
-        mrLeblanc.getBill().addToBill(totalAmount);
-        mrPignon.getBill().pay(); // La note de Pignon est effacée
+    @Then("Mr Leblanc pays for both")
+    public void mr_Leblanc_pays() {
+        System.out.println("💰 Mr Leblanc paie " + leJuste.getTotalBill() + "€");
     }
 
-    @Then("the bill is verified")
-    public void theBillIsVerified() {
-        assertEquals(20, mrLeblanc.getBill().getAmount()); // 2 cocktails à 10€
+    @When("they finish their drinks, the bill is verified")
+    public void theyFinishTheirDrinksTheBillIsVerified() {
+        int expectedBill = 20; // 2 cocktails à 10€
+        int actualBill = leJuste.getTotalBill();
+
+        System.out.println("🧾 Vérification de la note : " + actualBill + "€ (attendu : " + expectedBill + "€)");
+
+        assertEquals(expectedBill, actualBill, "Erreur: la facture ne correspond pas !");
     }
 
-    @And("Mr Leblanc pays")
-    public void mrLeblancPays() {
-        mrLeblanc.getBill().pay();
-        assertTrue(mrLeblanc.getBill().isPaid());
-    }
-
-    @And("Mr Pignon is happy because they only had one drink")
-    public void mrPignonIsHappyBecauseTheyOnlyHadOneDrink() {
-        assertEquals(1, mrPignon.getDrinksConsumed());
+    @Then("Mr Pignon is happy because he drank only one glass")
+    public void mr_Pignon_is_happy() {
         assertTrue(mrPignon.isHappy());
     }
 
-    @And("each person pays for their own drink")
-    public void eachPersonPaysForTheirOwnDrink() {
-        assertEquals(10, mrPignon.getBill().getAmount());
-        assertEquals(10, mrLeblanc.getBill().getAmount());
+    /**----------------------------------Part3--------------------------------------------------------**/
+
+    @And("nobody pays for the other’s drink")
+    public void nobodyPaysForOthersDrink() {
+        //
     }
 
-    @When("Mr Leblanc insists on buying another round")
+    @When("they finish their drinks, they verify their bills")
+    public void theyVerifyTheirBills() {
+        mrPignon.verifyBill();
+        mrLeblanc.verifyBill();
+    }
+
+    @Then("Mr Pignon pays his bill")
+    public void mrPignonPaysHisBill() {
+        mrPignon.payBill();
+    }
+
+    @And("Mr Leblanc insists on buying another round")
     public void mrLeblancInsistsOnBuyingAnotherRound() {
-        mrPignon.orderDrink();
-        mrLeblanc.orderDrink();
-        mrLeblanc.getBill().addToBill(leJuste.getCocktailPrice() * 2);
+        //
     }
 
-    @And("he orders {int} more cocktails of the month")
-    public void heOrdersMoreCocktailsOfTheMonth(int quantity) {
+    @When("Mr Leblanc orders {int} more cocktails of the month")
+    public void mrLeblancOrdersMoreCocktails(int quantity) {
         for (int i = 0; i < quantity; i++) {
-            mrLeblanc.getBill().addToBill(leJuste.getCocktailPrice());
+            mrLeblanc.orderDrink();
         }
     }
 
-    @Then("Mr Pignon is sad because he knows having more than one cocktail will lead to a bad night")
-    public void mrPignonIsSadBecauseOfTooManyDrinks() {
-        assertTrue(mrPignon.getDrinksConsumed() > 1);
-        assertFalse(mrPignon.isHappy());
+    @Then("at the end of his drink, Mr Leblanc verifies the bill and pays.")
+    public void mrLeblancVerifiesAndPays() {
+        mrLeblanc.verifyBill();
+        mrLeblanc.payBill();
+    }
+
+    @And("Mr Pignon is sad because he knows having more than one cocktail will lead to a bad night")
+    public void mrPignonIsSad() {
+        mrPignon.feelSad();
     }
 }

@@ -10,11 +10,17 @@ public class Bill {
     }
 
     public void addToBill(int amount) {
-        this.amount += amount;
+        if (amount > 0 && !isPaid) {
+            this.amount += amount;
+        }
     }
 
-    public void pay() {
-        this.isPaid = true;
+    public boolean pay() {
+        if (!isPaid) {
+            isPaid = true;
+            return true;
+        }
+        return false;
     }
 
     public int getAmount() {

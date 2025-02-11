@@ -1,12 +1,13 @@
 package com.sqli.isc.iut.courses.cucumber;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class Bar {
     private String name;
-    private int capacity;
-    private List<Customer> customers;
+    private final int capacity;
+    private final List<Customer> customers;
     private boolean isFull;
     private static final int COCKTAIL_PRICE = 10;
 
@@ -17,28 +18,26 @@ public class Bar {
         this.isFull = false;
     }
 
-    public boolean canEnter(int numberOfPeople) {
-        return customers.size() + numberOfPeople <= capacity;
-    }
-
     public void addCustomers(Customer... newCustomers) {
-        for (Customer customer : newCustomers) {
-            if (customers.size() < capacity) {
-                customers.add(customer);
-            }
+        if (customers.size() + newCustomers.length > capacity) {
+            isFull = true;
+            return;
         }
+        Collections.addAll(customers, newCustomers);
         isFull = customers.size() >= capacity;
     }
 
-    public int getCocktailPrice() {
+    public static int getCocktailPrice() {
         return COCKTAIL_PRICE;
+    }
+
+    public int getTotalBill() {
+        return customers.stream()
+                .mapToInt(customer -> customer.getBill().getAmount())
+                .sum();
     }
 
     public boolean isFull() {
         return isFull;
-    }
-
-    public int getCurrentOccupancy() {
-        return customers.size();
     }
 }
